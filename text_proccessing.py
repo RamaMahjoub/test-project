@@ -6,17 +6,30 @@ from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import RegexpTokenizer
 from nltk.tokenize import word_tokenize
 
-def _get_words_tokenize(text: str) -> list:
 
-    return word_tokenize(text)
+def _get_proccessed_text(text:str) ->list:
+    
+    tokens_without_punctuation=_remove_punctuations(text)
+    # print(tokens_without_punctuation)
+    # print("+++++++++++++++++++++++++++++++++++++++++")
+    lowercase_tokens=_lowercase_tokens(tokens_without_punctuation)
+    tokens_without_stopwords=_remove_stopwords(lowercase_tokens)
+    # print(tokens_without_stopwords)
+    # print("==========================================================================")
+    stemed_tokens=_stem_tokens(tokens_without_stopwords)
+    return stemed_tokens
 
-def _filter_tokens(tokens: list) -> list:
+# def _get_words_tokenize(text: str) -> list:
+
+#     return word_tokenize(text)
+
+def _remove_stopwords(tokens: list) -> list:
 
     stop_words = set(stopwords.words('english'))
 
-    filtered_tokens = [token for token in tokens if token not in stop_words]
+    tokens_without_stopwords = [token for token in tokens if token not in stop_words]
 
-    return filtered_tokens
+    return tokens_without_stopwords
 
 def _remove_punctuations(text: str) -> list:
 
