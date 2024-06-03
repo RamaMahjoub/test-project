@@ -7,15 +7,43 @@ from nltk.tokenize import word_tokenize
 import re
 from nltk.corpus import wordnet
 from nltk import pos_tag
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+origins = [
+    "http://localhost:10000",  # Your frontend URL
+    "http://127.0.0.1:10000"  # Sometimes, the frontend may use this URL
+]
+
+# Add CORSMiddleware to the app
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # api
+@app.get("/process-text")
+def text_preocessing(text:str,dataset_name:str):
+    if dataset_name=="science":
+        return _get_proccessed_text_science(text)
+    else:
+        return _get_proccessed_text_recreation(text)
+
+
+
 def _get_proccessed_text_science( text:str) ->list:
     # print("1111111111111111111111111111111")
     text_without_urls=remove_urls(text)
     text_without_punctuation=_remove_punctuations(text_without_urls)
     tokens=_get_words_tokenize(text_without_punctuation)
     lowercase_tokens=_lowercase_tokens(tokens)
+    
     temp_dataset=normalize_elements(lowercase_tokens)
+    
     tokens_without_stopwords=_remove_stopwords(temp_dataset)
     # stemed_tokens=_stem_tokens(tokens_without_stopwords)
     limitized_tokens=preprocess_and_lemmatize(tokens_without_stopwords)
@@ -27,10 +55,12 @@ def _get_proccessed_text_recreation( text:str) ->list:
     text_without_urls=remove_urls(text)
     text_without_punctuation=_remove_punctuations(text_without_urls)
     tokens=_get_words_tokenize(text_without_punctuation)
+    # alaa  ALAA 
     lowercase_tokens=_lowercase_tokens(tokens)
     tokens_without_stopwords=_remove_stopwords(lowercase_tokens)
     # stemed_tokens=_stem_tokens(tokens_without_stopwords)
     limitized_tokens=preprocess_and_lemmatize(tokens_without_stopwords)
+    # ["alaa"] -> "alaa"
     return ' '.join(limitized_tokens)
 
 
@@ -85,13 +115,16 @@ def get_wordnet_pos(word):
                 "R": wordnet.ADV}
     
     return tag_dict.get(tag, wordnet.NOUN)
-
+#["i","am","alaa"]
 def preprocess_and_lemmatize(tokens):
     """Tokenize, POS tag, and lemmatize the input text."""
     lemmatizer = WordNetLemmatizer()
-    pos_tagged_tokens = pos_tag(tokens)  # POS tag tokens
+    pos_tagged_tokens = pos_tag(tokens)  # (token,tag) # POS tag tokens
     lemmatized_tokens = [lemmatizer.lemmatize(token, get_wordnet_pos(token)) for token, tag in pos_tagged_tokens]
     return lemmatized_tokens
+
+
+
 
 def _stem_tokens(tokens: list) -> list:
     stemmer = PorterStemmer()
@@ -245,3 +278,13 @@ def normalize_elements(tokens):
     normalized_tokens = [element_dict.get(token, token) for token in tokens]
     return normalized_tokens
 
+
+@app.on_event("startup")
+async def on_startup():
+    print("init start ...")
+    print("init done ...")
+
+    
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
