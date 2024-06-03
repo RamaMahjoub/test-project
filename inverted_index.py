@@ -1,69 +1,56 @@
-from typing import Dict
-import math
-from text_proccessing import _get_proccessed_text
-from collections import defaultdict
-import shelve
+from text_proccessing import _get_proccessed_text_science,_get_proccessed_text_recreation
+from sklearn.feature_extraction.text import TfidfVectorizer
+import pandas as pd
+from storing_and_loading import store_file
 
 
-def create_inverted_index(cleaned_tokens:list):
-    index=defaultdict(list)
-    for item in cleaned_tokens:
-        unique_tokens=set(item["tokens"])
-        for token in unique_tokens:
-            index[token].append(item["id"])
-    return dict(index)
+def get_corpus(dataset_name:str,crawling:bool):
+    if dataset_name=="science":
+        if crawling:
+            dataset = pd.read_csv(r"E:\University\Fifth_year\IR\lotte\science\dev\crawling_collection.tsv",sep='\t', header=None)
+            corpus={str(row[0]):row[1] for index,row in dataset.iterrows()}
+        else: 
+            dataset = pd.read_csv(r"C:\Users\alaaK\.ir_datasets\lotte\lotte_extracted\lotte\science\dev\collection.tsv",sep='\t', header=None)
+            corpus={str(row[0]):row[1] for index,row in dataset.iterrows()}
+    else:
+        if crawling :
+            dataset = pd.read_csv(r"E:\University\Fifth_year\IR\lotte\recreation\dev\crawling_collection.tsv",sep='\t', header=None)
+            corpus={str(row[0]):row[1] for index,row in dataset.iterrows()}
+        else:
+            dataset = pd.read_csv(r"C:\Users\alaaK\.ir_datasets\lotte\lotte_extracted\lotte\recreation\dev\collection.tsv",sep='\t', header=None)
+            corpus={str(row[0]):row[1] for index,row in dataset.iterrows()}
+    return corpus
 
 
-def calculate_tf(doc_tokens:list):
-    tf = {}
-    for term in doc_tokens:
-        tf[term] = (doc_tokens.count(term) / len(doc_tokens)) 
-    return tf
+def create_vector (dataset_name:str):
+    corpus=get_corpus(dataset_name,False)
+    if dataset_name=="science":
+        vectorizer = TfidfVectorizer(preprocessor=_get_proccessed_text_science)
+    else:
+        vectorizer = TfidfVectorizer(preprocessor=_get_proccessed_text_recreation)
 
-def calculate_idf(inverted_index:Dict[str,str],docs_count:int):
-    idf = {}
-    for term, doc_ids in inverted_index.items():
-        idf[term] = math.log((docs_count / len(doc_ids)) + 1,10)
+    # Fit the vectorizer to the documents
+    tfidf_matrix = vectorizer.fit_transform(list(corpus.values()))
+    # tfidf_matrix.getrow()
+    store_file('db/'+dataset_name+'/vectore_matrix.bin',tfidf_matrix)
+    store_file('db/'+dataset_name+'/vectorizer_model.bin',vectorizer)
+
+
+def create_crawling_vector (dataset_name:str,path:str):
+    print("corpus start ..")
+    corpus=get_corpus(path,True)
+    print("corpus done ..")
+    print("vectorizer start ..")
+    if dataset_name=="science":
+        vectorizer = TfidfVectorizer(preprocessor=_get_proccessed_text_science)
+    else:
+        vectorizer = TfidfVectorizer(preprocessor=_get_proccessed_text_recreation)
+    print("vectorizer done ..")
+    # Fit the vectorizer to the documents
+    tfidf_matrix = vectorizer.fit_transform(list(corpus.values()))
+    # tfidf_matrix.getrow()
+    print("tfidf_matrix start ..")
+    store_file('db/'+dataset_name+'/crawling/vectore_matrix.bin',tfidf_matrix)
+    store_file('db/'+dataset_name+'/crawling/vectorizer_model.bin',vectorizer)
+    print("tfidf_matrix done ..")
     
-    return idf
-
-
-def calculate_tf_idf(doc_tokens:list,idf:Dict[str,str]):
-    tf_idf={}
-    doc_tf=calculate_tf(doc_tokens)
-    
-    for term in doc_tokens:    
-        tf_idf[term] = doc_tf[term] * idf[term]
-    return tf_idf
-
-
-def _create_docs_vectors(cleaned_tokens):
-    vectors={}
-
-    index=create_inverted_index(cleaned_tokens)
-    # print(index)
-    idf=calculate_idf(index,len(cleaned_tokens))
-    for item in cleaned_tokens:
-        vectors[item["id"]]= calculate_tf_idf(item["tokens"],idf)
-
-    with shelve.open('db/' + 'dataset_name' + '_documents_vector',flag='c') as db:
-        db["documents_vector"] = vectors
-    return vectors
-
-
-
-def create_weighted_inverted_index(cleaned_tokens) -> None:
-
-    weighted_inverted_index = defaultdict(list)
-    vectors = _create_docs_vectors(cleaned_tokens)
-    for doc_id, doc_weighted_terms in vectors.items():
-        for term, weight in doc_weighted_terms.items():
-            weighted_inverted_index[term].append({doc_id: weight})
-    with shelve.open('db/' + "dataset_name" + '_inverted_index.db',flag='c') as db:
-        # Store the inverted index in the "shelve" file
-        db['inverted_index'] = weighted_inverted_index
-    
-
-
-
-
