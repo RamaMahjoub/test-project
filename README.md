@@ -23,18 +23,29 @@ Run db_factory.py file for the first time to set the database on your device.
 
 ## Services
 
-*note that service might behave differently based on the selected dataset
+
+*note that service might behave differently based on the selected dataset*
+*Each service runs on a separate port*
 
 - **Search**:
+
+you have to run a service by this command:
+
+    - fastapi run matching_and_ranking.py --reload --port 8001
 
 Performs search query and get full documnents results based on passed query and dataset passed.
 
 the following APIs runs the search service on our project:
 
-    - GET: /search?query="YOUR-QUERY"&dataset="science/recreation"&crawling=true/false
+    - GET: 8001:/search?query="YOUR-QUERY"&dataset="science/recreation"&crawling=true/false
 the "crawling=true/false" is available just on science dataset
 
+
 - **Text Processing**:
+
+you have to run a service by this command:
+
+    - fastapi run text_proccessing.py --reload --port 8000
 
 The implemented text processing steps are:
 
@@ -58,13 +69,31 @@ The implemented text processing steps are:
 
 the following API runs the text processing service on the provided text and dataset:
 
-    - GET: /process-text?text="YOUR-TEXT"&dataset="science/recreation"
+    - GET: 8000:/process-text?text="YOUR-TEXT"&dataset="science/recreation"
 
 
-- **Query Suggestions** (query_refinement Branch):
+- **Query Suggestions** :
+
+you have to run a service by this command:
+
+    - fastapi run query_refinement.py --reload --port 8002
 
 Performs a query suggestions search and returns ranked suggestions to the given query and dataset.
 
 the following API runs the Query Suggestions service:
 
-    - GET: /suggestions?query="YOUR-QUERY"&dataset="science/recreation"
+    - GET: 8002:/suggestions?query="YOUR-QUERY"&dataset="science/recreation"
+
+
+- **Embedding** :
+
+you have to run a service by this command:
+
+    - fastapi run word_embedding.py --reload --port 8003
+
+Performs search by embedding model query and get full documnents results based on passed query and dataset passed.
+
+the following API runs search service by embedding on our project:
+
+    - GET: :8003/search?query="YOUR-QUERY"&dataset="science/recreation"
+
