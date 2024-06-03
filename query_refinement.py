@@ -18,9 +18,9 @@ def set_query_refinement_global_variables() -> None:
     global _science_queries
 
     ############## recreation ##############
+    #{ "1":"value"}
     forum_generic_recreation_queries = set(_get_queries("recreation","forum").values())
     search_generic_recreation_queries = set(_get_queries("recreation","search").values())
-    # recreation_stored_queries=load_file("db/recreation/query_refinement/users_queries.bin")
     
     forum_recreation_queries = set(query for query in forum_generic_recreation_queries)
     search_recreation_queries = set(query for query in search_generic_recreation_queries)
@@ -29,7 +29,6 @@ def set_query_refinement_global_variables() -> None:
     ############## Science ##############
     forum_generic_science_queries = set(_get_queries("science","forum").values())
     search_generic_science_queries = set(_get_queries("science","search").values())
-    # science_stored_queries=load_file("db/science/query_refinement/users_queries.bin")
     
     forum_science_queries = set(query for query in forum_generic_science_queries)
     search_science_queries = set(query for query in search_generic_science_queries)
@@ -46,6 +45,7 @@ def _get_query_suggestions(query: str, dataset_name: str) -> list:
         queries = _science_queries
 
     suggestions = []
+    # [ " one" , "two"]
     query_terms = query.lower().split()
     query_freq = Counter(query_terms)
 
@@ -71,7 +71,8 @@ def _suggest_corrected_query(text: str):
     # Create a list to store the corrected tokens
     corrected_tokens = []
 
-    # Spell check each token
+    # [Spell ,check, each ,token]
+    
     for token in text.split():
         if token in word_set:
             corrected_tokens.append(token)

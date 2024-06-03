@@ -38,19 +38,23 @@ def set_inverted_index_store_global_variables():
     global _science_vectorizer
     global _recreation_matrex
     global _recreation_vectorizer
-    global _science_corpus
-    global _recreation_corpus
+
 
     # science
-    _science_corpus=get_corpus("science")
     _science_matrex=load_file('db/science/vectore_matrix.bin')
     _science_vectorizer = load_file('db/science/vectorizer_model.bin')
     
     #recreation
-    # _recreation_corpus=get_corpus("recreation")
-    # _recreation_matrex=load_file('db/recreation/vectore_matrix.bin')
-    # _recreation_vectorizer = load_file('db/recreation/vectorizer_model.bin')
+    _recreation_matrex=load_file('db/recreation/vectore_matrix.bin')
+    _recreation_vectorizer = load_file('db/recreation/vectorizer_model.bin')
     
+def set_cprpus_global_variable():
+    global _science_corpus
+    global _recreation_corpus
+    
+    _science_corpus=get_corpus("science")
+    _recreation_corpus=get_corpus("recreation")
+
 
 def set_crawling():
     global _crawling_science_matrex
@@ -60,9 +64,7 @@ def set_crawling():
     # science
     _crawling_science_matrex=load_file('db/science/crawling/vectore_matrix.bin')
     _crawling_science_vectorizer = load_file('db/science/crawling/vectorizer_model.bin')
-    # recreation
-    # _crawling_recreation_matrex=load_file('db/recreation/crawling/vectore_matrix.bin')
-    # _crawling_recreation_vectorizer = load_file('db/recreation/crawling/vectorizer_model.bin')
+    
 
 
 def related_docs(dataset_name,top_related_docs):
@@ -84,16 +86,10 @@ def search(query_vector,vectore_matrix,doc_ids):
 
 def create_query_vector(dataset_name:str,query:str,crawling:bool):
     print("query: ",query)
-    # if dataset_name == "science":
-    #     vectorizer=_science_vectorizer
-    # else:
-    #     vectorizer=_recreation_vectorizer
-    # vectorizer=get_global_vectorizer(dataset_name,crawling)
-    # print("veccccccccccccccccccccccccccccccccccc",vectorizer)
-    # Fit the vectorizer to the documents
-    # tfidf_matrix = 
-    
-    return get_global_vectorizer(dataset_name,crawling).transform([query])
+
+    # tfidf_matrix = vectorizer.transform([query])
+    # return tfidf_matrix
+    return get_global_vectorizer(dataset_name,crawling).transform([query]) # [ [5 ,5 , 5 ]  ]
 
 
 app = FastAPI()
@@ -114,10 +110,10 @@ app.add_middleware(
 
 @app.get("/search")
 def ranking(dataset_name,query,crawling:bool):
-    query_vector=create_query_vector(dataset_name,query,crawling)
-    matrix=get_global_matrix(dataset_name,crawling)
+    query_vector=create_query_vector(dataset_name,query,crawling) 
+    matrix=get_global_matrix(dataset_name,crawling) 
     
-    doc_ids =load_file("db/"+dataset_name+"/topic_detiction/keys_id.bin")
+    doc_ids =load_file("db/"+dataset_name+"/keys_id.bin")
     print("hi" ,list(doc_ids)[:10])
     top_related_docs=search(query_vector,matrix,doc_ids)
     docs_contecnt=related_docs(dataset_name,top_related_docs)
@@ -129,6 +125,7 @@ def ranking(dataset_name,query,crawling:bool):
 def get_global_corpus(dataset_name: str):
     
     return globals()["_" + dataset_name + "_corpus"]
+
 
 def get_global_vectorizer(dataset_name: str,crawling:bool):
     if crawling:
@@ -149,6 +146,7 @@ def get_global_matrix(dataset_name: str,crawling:bool):
 async def on_startup():
     print("init start ...")
     set_inverted_index_store_global_variables()
+    set_cprpus_global_variable()
     set_crawling()
     print("init done ...")
 

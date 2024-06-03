@@ -22,15 +22,19 @@ def get_corpus(dataset_name:str,crawling:bool):
     return corpus
 
 
-def create_vector (dataset_name:str):
+def create_vector(dataset_name:str):
     corpus=get_corpus(dataset_name,False)
     if dataset_name=="science":
+        # " gjernokekp   http //  ( rdhgfkdkfpe, f)"
+        #     5              6           10              => [ [ 5 , 6 , 10  ] , [  5 , 5 ,5 ] ] 
+        #   query                                        =>   [ 3  , 7  , 9 ]
         vectorizer = TfidfVectorizer(preprocessor=_get_proccessed_text_science)
     else:
         vectorizer = TfidfVectorizer(preprocessor=_get_proccessed_text_recreation)
 
     # Fit the vectorizer to the documents
     tfidf_matrix = vectorizer.fit_transform(list(corpus.values()))
+    
     # tfidf_matrix.getrow()
     store_file('db/'+dataset_name+'/vectore_matrix.bin',tfidf_matrix)
     store_file('db/'+dataset_name+'/vectorizer_model.bin',vectorizer)
