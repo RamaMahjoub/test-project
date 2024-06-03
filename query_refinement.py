@@ -87,6 +87,7 @@ def _suggest_corrected_query(text: str):
 
 app = FastAPI()
 origins = [
+    "https://ir-frontend.onrender.com/",
     "http://localhost:10000",  # Your frontend URL
     "http://127.0.0.1:10000"  # Sometimes, the frontend may use this URL
 ]

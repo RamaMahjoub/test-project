@@ -13,8 +13,6 @@ _recreation_matrex = None
 _recreation_vectorizer = None
 _crawling_science_matrex = None
 _crawling_science_vectorizer = None
-_crawling_recreation_matrex = None
-_crawling_recreation_vectorizer = None
 
 
 def get_corpus(dataset_name:str):
@@ -38,7 +36,13 @@ def set_inverted_index_store_global_variables():
     global _science_vectorizer
     global _recreation_matrex
     global _recreation_vectorizer
-
+    global _science_corpus
+    global _recreation_corpus
+    
+    _science_corpus=get_corpus("science")
+    print("science: ",len(_science_corpus.keys()))
+    _recreation_corpus=get_corpus("recreation")
+    print("recreation: ",len(_recreation_corpus.keys()))
 
     # science
     _science_matrex=load_file('db/science/vectore_matrix.bin')
@@ -48,19 +52,19 @@ def set_inverted_index_store_global_variables():
     _recreation_matrex=load_file('db/recreation/vectore_matrix.bin')
     _recreation_vectorizer = load_file('db/recreation/vectorizer_model.bin')
     
-def set_cprpus_global_variable():
-    global _science_corpus
-    global _recreation_corpus
+# def set_cprpus_global_variable():
+#     global _science_corpus
+#     global _recreation_corpus
     
-    _science_corpus=get_corpus("science")
-    _recreation_corpus=get_corpus("recreation")
+#     _science_corpus=get_corpus("science")
+#     print("science: ",len(_science_corpus.keys()))
+#     _recreation_corpus=get_corpus("recreation")
+#     print("recreation: ",len(_recreation_corpus.keys()))
 
 
 def set_crawling():
     global _crawling_science_matrex
     global _crawling_science_vectorizer
-    global _crawling_recreation_matrex
-    global _crawling_recreation_vectorizer
     # science
     _crawling_science_matrex=load_file('db/science/crawling/vectore_matrix.bin')
     _crawling_science_vectorizer = load_file('db/science/crawling/vectorizer_model.bin')
@@ -146,7 +150,7 @@ def get_global_matrix(dataset_name: str,crawling:bool):
 async def on_startup():
     print("init start ...")
     set_inverted_index_store_global_variables()
-    set_cprpus_global_variable()
+    # set_cprpus_global_variable()
     set_crawling()
     print("init done ...")
 
