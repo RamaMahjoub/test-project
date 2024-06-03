@@ -19,7 +19,52 @@ After running your project locally you can perform your query and get the result
 ## How to run the project?
 
 Install required packages. 
+Run db_factory.py file for the first time to set the database on your device.
+
+## Services
+
+*note that service might behave differently based on the selected dataset
+
+- **Search**:
+
+Performs search query and get full documnents results based on passed query and dataset passed.
+
+the following APIs runs the search service on our project:
+
+    - GET: /search?query="YOUR-QUERY"&dataset="science/recreation"&crawling=true/false
+the "crawling=true/false" is available just on science dataset
+
+- **Text Processing**:
+
+The implemented text processing steps are:
 
 
+1. **Remove urls**
 
 
+2. **Remove punctuations**
+
+
+3. **Tokenizing**
+
+
+3. **Lowerization**
+
+
+5. **Cleaning**
+
+
+6. **limitization**
+
+the following API runs the text processing service on the provided text and dataset:
+
+    - GET: /process-text?text="YOUR-TEXT"&dataset="science/recreation"
+
+
+- **Query Suggestions** (query_refinement Branch):
+
+Performs a query suggestions search and returns ranked suggestions to the given query and dataset.
+
+the following API runs the Query Suggestions service:
+
+    - GET: /suggestions?query="YOUR-QUERY"&dataset="science/recreation"
