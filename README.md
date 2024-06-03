@@ -97,3 +97,12 @@ the following API runs search service by embedding on our project:
 
     - GET: :8003/search?query="YOUR-QUERY"&dataset="science/recreation"
 
+
+## Students
+
+- **Alaa Khoulani**
+- **Rama Mahjoub**
+- **Raghad Khoula**
+- **Touka Ramdan**
+- **Saja Ghanam**
+
